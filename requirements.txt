@@ -1,20 +1,24 @@
-# Core
+# --- Core numerical stack ---
+numpy<2
+scipy<1.12
+
+# --- ML ---
+torch==2.1.0+cpu
+torchvision==0.16.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+transformers==4.38.2
+sentence-transformers==2.6.1
+sentencepiece
+
+# --- NLP ---
+spacy==3.7.2
+nltk
+rank-bm25
+
+# --- Backend ---
 fastapi
 uvicorn
 pydantic
 requests
-
-# ML / NLP
-torch==2.1.0+cpu
-transformers
-sentence-transformers
-rank-bm25
-numpy
-scipy
 tqdm
-
-# NLP
-nltk
-spacy
-
-# Utils
