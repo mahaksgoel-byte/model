@@ -1,5 +1,5 @@
 # -------------------------
-# Base image (stable, small)
+# Base image
 # -------------------------
 FROM python:3.11-slim
 
@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # -------------------------
-# Set working directory
+# Working directory
 # -------------------------
 WORKDIR /app
 
@@ -37,21 +37,22 @@ WORKDIR /app
 COPY requirements.txt .
 
 # -------------------------
-# Install Python deps
+# Install Python dependencies
 # -------------------------
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
 # -------------------------
-# HARD FIX: downgrade NumPy
+# HARD FIX: NumPy compatibility
 # -------------------------
 RUN pip uninstall -y numpy \
     && pip install "numpy<2"
 
 # -------------------------
-# Download spaCy model
+# Install spaCy English model (PINNED, NO 404)
 # -------------------------
-RUN pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
+RUN pip install \
+    https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 
 # -------------------------
 # Pre-download ML models
@@ -60,25 +61,22 @@ RUN python - <<EOF
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-# Sentence embedding model
 SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-
-# NLI model
 AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
 AutoModelForSequenceClassification.from_pretrained("facebook/bart-large-mnli")
 EOF
 
 # -------------------------
-# Copy application code
+# Copy app code
 # -------------------------
 COPY . .
 
 # -------------------------
-# Expose FastAPI port
+# Expose port
 # -------------------------
 EXPOSE 8080
 
 # -------------------------
-# Start FastAPI
+# Start API
 # -------------------------
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]
