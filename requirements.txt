@@ -16,6 +16,8 @@ spacy==3.7.2
 nltk
 rank-bm25
 
+feedparser
+
 # --- Backend ---
 fastapi
 uvicorn
