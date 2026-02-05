@@ -1,26 +1,42 @@
-# --- Core numerical stack ---
+# ===============================
+# Core numerical stack
+# ===============================
 numpy<2
 scipy<1.12
 
-# --- ML ---
+# ===============================
+# PyTorch (CPU only)
+# ===============================
 torch==2.1.0+cpu
 torchvision==0.16.0+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
 
+# ===============================
+# Transformers / Embeddings
+# ===============================
 transformers==4.38.2
 sentence-transformers==2.6.1
 sentencepiece
 
-# --- NLP ---
+# ===============================
+# NLP
+# ===============================
 spacy==3.7.2
 nltk
 rank-bm25
 
-feedparser
+# ===============================
+# Web + Retrieval
+# ===============================
+requests
+feedparser          # arXiv RSS
+beautifulsoup4      # bs4 (institution scraping)
+lxml                # HTML parsing backend
 
-# --- Backend ---
+# ===============================
+# Backend
+# ===============================
 fastapi
 uvicorn
 pydantic
-requests
 tqdm
