@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pydantic
+
+torch
+transformers
+sentence-transformers
+
+spacy
+requests
+rank-bm25
+numpy
+tqdm
+
+beautifulsoup4
+lxml
