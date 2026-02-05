@@ -1,16 +1,20 @@
+# Core
 fastapi
 uvicorn
 pydantic
+requests
 
-torch
+# ML / NLP
+torch==2.1.0+cpu
 transformers
 sentence-transformers
-
-spacy
-requests
 rank-bm25
 numpy
+scipy
 tqdm
 
-beautifulsoup4
-lxml
+# NLP
+nltk
+spacy
+
+# Utils
