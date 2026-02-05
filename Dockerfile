@@ -1,58 +1,60 @@
+# -------------------------
+# Base image (stable, small)
+# -------------------------
 FROM python:3.11-slim
 
 # -------------------------
-# Environment
+# Environment variables
 # -------------------------
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-
-# HuggingFace & spaCy cache locations
-ENV HF_HOME=/models/hf
-ENV TRANSFORMERS_CACHE=/models/hf
-ENV SENTENCE_TRANSFORMERS_HOME=/models/sentence_transformers
-ENV SPACY_HOME=/models/spacy
+ENV TOKENIZERS_PARALLELISM=false
+ENV TRANSFORMERS_NO_ADVISORY_WARNINGS=1
+ENV HF_HOME=/models
 
 # -------------------------
-# System deps (minimal)
+# System dependencies
 # -------------------------
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     build-essential \
     git \
     curl \
+    wget \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
 # -------------------------
-# Workdir
+# Set working directory
 # -------------------------
 WORKDIR /app
 
 # -------------------------
-# Install Python deps
+# Copy requirements
 # -------------------------
 COPY requirements.txt .
 
-# CPU-only torch
-RUN pip install --no-cache-dir \
-    torch==2.1.0+cpu \
-    --index-url https://download.pytorch.org/whl/cpu
-
-RUN pip install --no-cache-dir -r requirements.txt
+# -------------------------
+# Install Python deps
+# -------------------------
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 # -------------------------
-# Download NLP assets (IMPORTANT)
+# HARD FIX: downgrade NumPy
 # -------------------------
-# spaCy model
+RUN pip uninstall -y numpy \
+    && pip install "numpy<2"
+
+# -------------------------
+# Download spaCy model
+# -------------------------
 RUN python -m spacy download en_core_web_sm
 
-# NLTK data
-RUN python - <<EOF
-import nltk
-nltk.download('punkt')
-nltk.download('wordnet')
-EOF
-
 # -------------------------
-# Download HF models explicitly
+# Pre-download ML models
 # -------------------------
 RUN python - <<EOF
 from sentence_transformers import SentenceTransformer
@@ -61,19 +63,22 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # Sentence embedding model
 SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-# NLI model (example – adjust to your config)
+# NLI model
 AutoTokenizer.from_pretrained("facebook/bart-large-mnli")
 AutoModelForSequenceClassification.from_pretrained("facebook/bart-large-mnli")
 EOF
 
 # -------------------------
-# Copy app
+# Copy application code
 # -------------------------
 COPY . .
 
 # -------------------------
-# Expose & run
+# Expose FastAPI port
 # -------------------------
-EXPOSE 8081
+EXPOSE 8080
 
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8081"]
+# -------------------------
+# Start FastAPI
+# -------------------------
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]
